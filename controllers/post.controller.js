@@ -40,4 +40,30 @@ const getPosts= async(req, res)=>{
     }
 }
 
-module.exports= {addPost, getPosts};
+const deletePost= async(req, res)=>{
+    try {
+        const {postId}= req.params;
+        const {userId}= req.body;
+
+        const post= await Post.findById(postId);
+        if(!post){
+            return res.status(404).json({message: 'Post not found'});
+        };
+
+        if(post.user != userId){
+            return res.status(403).json({message: 'You are not authorized to delete this post'});
+        }
+
+        const deletePost= await Post.findByIdAndDelete(postId);
+        if(!deletePost){
+            return res.status(404).json({message: 'Post not found'});
+        }
+
+        res.status(200).json({message: 'Post deleted successfully'});
+        
+    } catch (error) {
+        return res.status(500).json({message: 'Internal server error'});
+    }
+} 
+
+module.exports= {addPost, getPosts, deletePost};
